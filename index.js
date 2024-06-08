@@ -107,18 +107,21 @@ async function run() {
       const result = await usersCollection.updateOne(filter, updatedDoc);
       res.send(result);
     })
+    app.get('/users/admin/:email', async (req, res) => {
+      const email = req.params.email;
+      // if (email !== req.decoded.email) {
+      //   return res.status(403).send({ message: 'unauthorized access' });
+      // }
 
-    app.get('/request', async (req, res) => {
-      const result = await requestCollection.find().toArray();
-      res.send(result);
-    });
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
 
-    app.get('/request/:requesterEmail', async (req, res) => {
-      const requesterEmail = req.params.email;
-      const query = { email: requesterEmail };
-      const result = await requestCollection.find(query).toArray();
-      res.send(result);
-    });
+      let admin = false;
+      if (user) {
+        admin = user?.role === 'admin';
+      }
+      res.send({ admin });
+    })
 
     app.post('/request', async (req, res) => {
       const newRequest = req.body;
@@ -126,6 +129,60 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/request', async (req, res) => {
+      const result = await requestCollection.find().toArray();
+      res.send(result);
+    });
+
+    // donor request id get
+    app.get('/request/requester/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await requestCollection.findOne(query);
+      res.send(result);
+    });
+
+// donor request email get
+    app.get('/request/:requesterEmail', async (req, res) => {
+      const email = req.params.requesterEmail;
+      const query = { requesterEmail: email };
+      console.log(query);
+      const result = await requestCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    
+
+    app.put('/request/:id', async (req, res) => {
+      const reqData = req.body;
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          recipientName: reqData.recipientName,
+          address: reqData.address,
+          blood: reqData.blood,
+          district: reqData.district,
+          upazila: reqData.upazila,
+          donationDate: reqData.donationDate,
+          donationTime: reqData.donationTime,
+          details: reqData.details,
+          location: reqData.location,
+          status: reqData.status
+        }
+      }
+      const result = await requestCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    })
+
+
+    app.delete('/request/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      console.log(query);
+      const result = await requestCollection.deleteOne(query);
+      res.send(result);
+    })
 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
