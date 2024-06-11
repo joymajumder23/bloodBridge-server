@@ -82,6 +82,24 @@ async function run() {
       res.send(result);
     });
 
+    // update profile
+    app.put('/users/:email', async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email};
+      const updatedDoc = {
+        $set: {
+          name: user.name,
+          avatar: user.avatar,
+          blood: user.blood,
+          district: user.district,
+          upazila: user.upazila
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
     // admin
     app.get('/users', async (req, res) => {
       const result = await usersCollection.find().toArray();
