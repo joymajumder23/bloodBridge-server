@@ -317,21 +317,21 @@ async function run() {
     })
 
     // search form
-    // app.get('/requests', async (req, res) => {
-    //   try {
-    //     const { blood, district, upazila } = req.query;
-    //     const query = {};
+    app.get('/requests', async (req, res) => {
+      try {
+        const { blood } = req.query;
+        const query = {};
   
-    //     if (blood) query.blood = blood;
-    //     if (district) query.district = district;
-    //     if (upazila) query.upazila = upazila;
+        if (blood) query.blood = blood;
+        // if (district) query.district = district;
+        // if (upazila) query.upazila = upazila;
   
-    //     const donors = await requestCollection.find(query).toArray();
-    //     res.json(donors);
-    //   } catch (err) {
-    //     res.status(500).send('Server Error');
-    //   }
-    // });
+        const donors = await requestCollection.find(query).toArray();
+        res.json(donors);
+      } catch (err) {
+        res.status(500).send('Server Error');
+      }
+    });
 
     // payment intent
     app.post('/create-payment-intent', async (req, res) => {
